@@ -56,4 +56,5 @@
     - Pass a function as an argument to another function
     - Return a function as a return value
 ### Deferred Functions
+- Postpone the execution of a function until the current function execution completes
 ### Struct Composition
