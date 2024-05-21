@@ -95,10 +95,14 @@ ch := make(chan int)
 ```go
 ch <- 100
 ```
-#### Receive Operation
+##### Receive Operation
 ```go
 data := <- ch
 ```
+#### Channel Behavior
+**The first operation (send or receive) on a channel will ALWAYS be a blocking operation**
+
+![image](./images/channel-operations.png)
 
 
 
