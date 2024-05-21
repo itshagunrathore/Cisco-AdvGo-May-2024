@@ -25,3 +25,7 @@ func f1() {
 func f2() {
 	fmt.Println("f2 invoked")
 }
+
+func add(x, y int) int {
+	return x + y
+}
