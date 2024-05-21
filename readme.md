@@ -59,3 +59,5 @@
 - Postpone the execution of a function until the current function execution completes
 ### Struct Composition
 - Composition is how go implements "inheritance"
+
+## Concurrency
