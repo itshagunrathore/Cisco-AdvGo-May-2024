@@ -14,10 +14,42 @@ func main() {
 		}
 		fmt.Println("	[main] thank you!")
 	}()
-	multiplier, divisor := 100, 7
-	q, r := divide(multiplier, divisor)
-	fmt.Printf("Dividing %d by %d, quotinet = %d and remainder = %d\n", multiplier, divisor, q, r)
+	/*
+		multiplier := 100
+		var divisor int
+		fmt.Print("Enter the divisor :")
+		fmt.Scanln(&divisor)
+		q, r := divide(multiplier, divisor)
+		fmt.Printf("Dividing %d by %d, quotinet = %d and remainder = %d\n", multiplier, divisor, q, r)
+	*/
 
+	// Using divideWrapper
+	for {
+		multiplier := 100
+		var divisor int
+		fmt.Print("Enter the divisor :")
+		fmt.Scanln(&divisor)
+		q, r, err := divideWrapper(multiplier, divisor)
+		if err != nil {
+			fmt.Println("Error :", err)
+			continue
+		}
+		fmt.Printf("Dividing %d by %d, quotinet = %d and remainder = %d\n", multiplier, divisor, q, r)
+		break
+	}
+
+}
+
+// wrapper for 'divide' to convert the 'panic' into an 'error'
+func divideWrapper(x, y int) (quotinet, remainder int, err error) {
+	defer func() {
+		if e := recover(); e != nil {
+			err = e.(error)
+			return
+		}
+	}()
+	quotinet, remainder = divide(x, y)
+	return
 }
 
 // 3rd party code
