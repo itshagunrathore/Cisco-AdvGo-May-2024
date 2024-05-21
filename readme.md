@@ -61,3 +61,17 @@
 - Composition is how go implements "inheritance"
 
 ## Concurrency
+- A design methodology where the application has more than one execution path
+- Typically achieved using OS theads (1 OS Thread = 2 MB)
+
+## Concurrency in Go
+- Builtin Scheduler
+- Concurrent operations are represented in light-weight threads call goroutines
+- Goroutines are cheap (4 KB)
+- Scheduler maps goroutines to OS Threads
+- Language support for concurrency
+    - go keyword, channel (chan) data type, channel ( <- ) operator, for range construct, select case construct
+- API support
+    - sync package
+    - sync/atomic package
+
