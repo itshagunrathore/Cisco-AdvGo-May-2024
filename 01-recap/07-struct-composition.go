@@ -17,14 +17,31 @@ func (p *Product) ApplyDiscount(discount float64) {
 }
 
 // struct composition
+
+type Dummy struct {
+	Id int
+}
+
 type PerishableProduct struct {
+	// Dummy
 	Product
 	Expiry string
 }
 
 // method overriding
 func (pp PerishableProduct) Format() string {
-	return fmt.Sprintf("%s, Expiry = %q", pp.Product.Format(), pp.Expiry)
+	return fmt.Sprintf("%s, Expiry = %s", pp.Product.Format(), pp.Expiry)
+}
+
+func NewPerishableProduct(id int, name string, cost float64, expiry string) *PerishableProduct {
+	return &PerishableProduct{
+		Product: Product{
+			Id:   id,
+			Name: name,
+			Cost: cost,
+		},
+		Expiry: expiry,
+	}
 }
 
 func main() {
@@ -36,10 +53,14 @@ func main() {
 	fmt.Println(pen.Format())
 
 	// composition
-	milk := PerishableProduct{
-		Product: Product{Id: 200, Name: "Milk", Cost: 50},
-		Expiry:  "2 Days",
-	}
+	/*
+		milk := PerishableProduct{
+			Product: Product{Id: 200, Name: "Milk", Cost: 50},
+			Expiry:  "2 Days",
+		}
+	*/
+	// instance creation using factory function
+	milk := NewPerishableProduct(200, "Milk", 50, "2 Days")
 	fmt.Println("Struct Composition")
 	fmt.Printf("%+v\n", milk)
 
