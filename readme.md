@@ -75,3 +75,31 @@
     - sync package
     - sync/atomic package
 
+### Channels
+- data type for enabling communication between goroutines
+#### Declaration
+```go
+var ch chan int
+```
+#### Initilialization
+```go
+ch = make(chan int)
+```
+#### Combine Declaration & Initialization
+```go
+ch := make(chan int)
+```
+#### Channel Operations 
+- Using the channel operator ( <- )
+##### Send Operation
+```go
+ch <- 100
+```
+#### Receive Operation
+```go
+data := <- ch
+```
+
+
+
+
