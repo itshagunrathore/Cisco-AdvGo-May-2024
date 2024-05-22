@@ -20,12 +20,22 @@ var products []Product = []Product{
 	{Id: 3, Name: "Marker", Cost: 50, Category: "Stationary"},
 }
 
+type Middleware func(handler http.HandlerFunc) http.HandlerFunc
+
 type Server struct {
-	routes map[string]func(http.ResponseWriter, *http.Request)
+	routes      map[string]http.HandlerFunc
+	middlewares []Middleware
 }
 
 func (s *Server) addRoute(pattern string, handler func(http.ResponseWriter, *http.Request)) {
+	for _, middleware := range s.middlewares {
+		handler = middleware(handler)
+	}
 	s.routes[pattern] = handler
+}
+
+func (s *Server) useMiddleware(middleware Middleware) {
+	s.middlewares = append(s.middlewares, middleware)
 }
 
 // implementation of the http.Handler interface
@@ -39,18 +49,16 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func NewServer() *Server {
 	return &Server{
-		routes: make(map[string]func(http.ResponseWriter, *http.Request)),
+		routes: make(map[string]http.HandlerFunc),
 	}
 }
 
 // application handlers
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("%s	%s\n", r.Method, r.URL.Path)
 	fmt.Fprintln(w, "Hello, World!")
 }
 
 func ProductsHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("%s	%s\n", r.Method, r.URL.Path)
 	switch r.Method {
 	case http.MethodGet:
 		if err := json.NewEncoder(w).Encode(products); err != nil {
@@ -71,13 +79,21 @@ func ProductsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func CustomersHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("%s	%s\n", r.Method, r.URL.Path)
 	fmt.Fprintln(w, "All customers data will be served!")
+}
+
+// middlewares
+func logMiddleware(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s	%s\n", r.Method, r.URL.Path)
+		handler(w, r)
+	}
 }
 
 func main() {
 	// server := &Server{}
 	server := NewServer()
+	server.useMiddleware(logMiddleware)
 	server.addRoute("/", IndexHandler)
 	server.addRoute("/products", ProductsHandler)
 	server.addRoute("/customers", CustomersHandler)
