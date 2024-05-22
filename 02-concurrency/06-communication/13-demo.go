@@ -1,3 +1,4 @@
+/* 11-demo.go solution without using WaitGroup */
 package main
 
 import (
