@@ -6,10 +6,14 @@ import (
 	"time"
 )
 
+type ContextKey struct {
+}
+
 // consumer
 func main() {
+	contextKey := ContextKey{}
 	rootCtx := context.Background()
-	valCtx := context.WithValue(rootCtx, "multiplier", 5)
+	valCtx := context.WithValue(rootCtx, contextKey, 5)
 	timeoutCtx, cancel := context.WithTimeout(valCtx, 5*time.Second)
 	fmt.Println("Will timeout after 5 secs.. Hit ENTER to stop manually!")
 	go func() {
@@ -28,7 +32,8 @@ func main() {
 // producer
 func genNos(ctx context.Context) <-chan int {
 	ch := make(chan int)
-	multiplier := ctx.Value("multiplier").(int)
+	contextKey := ContextKey{}
+	multiplier := ctx.Value(contextKey).(int)
 	go func() {
 	LOOP:
 		for i := 1; ; i++ {
