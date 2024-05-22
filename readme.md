@@ -118,5 +118,10 @@ data := <- ch
 - Can also use contexts to share data across goroutines
     - context.WithValue()
     
+## Curl
+```go
+curl http://localhost:8080/products
 
+curl http://localhost:8080/products -X POST -H 'Content-Type:application/json' -d '{"name":"Scribble Pad","cost":20,"category":"Stationary"}'
+```
 
