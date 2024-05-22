@@ -29,34 +29,12 @@ func (s *Server) addRoute(pattern string, handler func(http.ResponseWriter, *htt
 }
 
 // implementation of the http.Handler interface
-func (server *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("%s - %s\n", r.Method, r.URL.Path)
-	switch r.URL.Path {
-	case "/":
-		fmt.Fprintln(w, "Hello World!")
-	case "/products":
-		// fmt.Fprintln(w, "All product requests will processed")
-		switch r.Method {
-		case http.MethodGet:
-			if err := json.NewEncoder(w).Encode(products); err != nil {
-				log.Println(err)
-				http.Error(w, "internal server error", http.StatusInternalServerError)
-			}
-		case http.MethodPost:
-			var newProduct Product
-			if err := json.NewDecoder(r.Body).Decode(&newProduct); err != nil {
-				http.Error(w, "input data error", http.StatusBadRequest)
-				return
-			}
-			products = append(products, newProduct)
-			w.WriteHeader(http.StatusCreated)
-		}
-	case "/customers":
-		fmt.Fprintln(w, "All customer requests will be processed")
-	default:
+func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if handler := s.routes[r.URL.Path]; handler == nil {
 		http.Error(w, "resource not found", http.StatusNotFound)
+	} else {
+		handler(w, r)
 	}
-
 }
 
 func NewServer() *Server {
