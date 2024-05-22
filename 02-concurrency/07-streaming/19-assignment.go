@@ -15,17 +15,37 @@ func main() {
 	// Use the same channel to receive data from genPrimes() & genEvenNos() and print them as and ewhen they are generated
 	wg := &sync.WaitGroup{}
 	ch := make(chan ResultType)
+	// Ver 1.0
+	/*
+		go func() {
+			wg.Add(1)
+			go genPrimes(2, 100, ch, wg)
+			wg.Add(1)
+			go genEvenNos(60, ch, wg)
+			wg.Wait()
+			close(ch)
+		}()
+		for result := range ch {
+			fmt.Printf("Type : %q, No : %d\n", result.Type, result.No)
+		}
+	*/
+
+	// Ver 2.0
+	done := make(chan struct{})
 	go func() {
-		wg.Add(1)
-		go genPrimes(2, 100, ch, wg)
-		wg.Add(1)
-		go genEvenNos(60, ch, wg)
-		wg.Wait()
-		close(ch)
+		for result := range ch {
+			fmt.Printf("Type : %q, No : %d\n", result.Type, result.No)
+		}
+		fmt.Println("All the result printed")
+		close(done)
 	}()
-	for result := range ch {
-		fmt.Printf("Type : %q, No : %d\n", result.Type, result.No)
-	}
+	wg.Add(1)
+	go genPrimes(2, 50, ch, wg)
+	wg.Add(1)
+	go genEvenNos(30, ch, wg)
+	wg.Wait()
+	close(ch)
+	<-done
 }
 
 func genPrimes(start, end int, ch chan<- ResultType, wg *sync.WaitGroup) {
