@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"time"
 )
 
@@ -60,6 +63,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ProductsHandler(w http.ResponseWriter, r *http.Request) {
+	time.Sleep(10 * time.Second)
 	switch r.Method {
 	case http.MethodGet:
 		if err := json.NewEncoder(w).Encode(products); err != nil {
@@ -101,15 +105,42 @@ func profileMiddleware(handler http.HandlerFunc) http.HandlerFunc {
 }
 
 func main() {
-	// server := &Server{}
-	server := NewServer()
-	server.useMiddleware(logMiddleware)
-	server.useMiddleware(profileMiddleware)
-	server.addRoute("/", IndexHandler)
-	server.addRoute("/products", ProductsHandler)
-	server.addRoute("/customers", CustomersHandler)
-	if err := http.ListenAndServe(":8080", server); err != nil {
-		log.Fatalln(err)
+
+	server := &http.Server{
+		Addr:    "0.0.0.0:8080",
+		Handler: http.DefaultServeMux,
 	}
+	http.HandleFunc("/", IndexHandler)
+	http.HandleFunc("/products", logMiddleware(ProductsHandler))
+	http.HandleFunc("/customers", CustomersHandler)
+
+	go func() {
+		if err := server.ListenAndServe(); err != nil {
+			log.Fatalln(err)
+		}
+	}()
+
+	c := make(chan os.Signal, 1)
+	// We'll accept graceful shutdowns when quit via SIGINT (Ctrl+C)
+	// SIGKILL, SIGQUIT or SIGTERM (Ctrl+/) will not be caught.
+	signal.Notify(c, os.Interrupt)
+
+	// Block until we receive our signal.
+	<-c
+
+	fmt.Println("Received kill signal")
+
+	// Create a deadline to wait for.
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(15*time.Second))
+	defer cancel()
+	// Doesn't block if no connections, but will otherwise wait
+	// until the timeout deadline.
+	server.Shutdown(ctx)
+	// Optionally, you could run srv.Shutdown in a goroutine and block on
+	// <-ctx.Done() if your application should wait for other services
+	// to finalize based on context cancellation.
+	log.Println("shutting down")
+	os.Exit(0)
+
 	fmt.Println("Server listening on 8080.....")
 }
