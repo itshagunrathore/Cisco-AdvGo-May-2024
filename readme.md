@@ -104,6 +104,19 @@ data := <- ch
 
 ![image](./images/channel-operations.png)
 
-
+## Context
+- Cancel Propagation across hierarchy of goroutines
+- Cancellation can be
+    - programmatic
+    - time based
+- Contexts can be created as a hierarchy
+- Root context is created with 'context.Background()'
+- Context factory methods:
+    - context.WithTimeout()
+    - context.WithDeadline()
+    - context.WithCancel()
+- Can also use contexts to share data across goroutines
+    - context.WithValue()
+    
 
 
