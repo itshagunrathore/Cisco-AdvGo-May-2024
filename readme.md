@@ -168,3 +168,16 @@ curl http://localhost:8080/products -X POST -H 'Content-Type:application/json' -
     2. Go plugins (installed in the GOPATH/bin folder)
         go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
         go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
+
+
+## Benchmarking
+```
+go test -run=^$ -bench ./...
+```
+
+## Profiling
+[Reference](https://100go.co/98-profiling-execution-tracing/)
+
+## Testing
+- gotest tool (https://github.com/rakyll/gotest)
+- To generate mock objects (https://vektra.github.io/mockery/latest/)

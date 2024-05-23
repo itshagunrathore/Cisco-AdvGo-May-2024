@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"time"
@@ -70,7 +71,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ProductsHandler(w http.ResponseWriter, r *http.Request) {
-	time.Sleep(10 * time.Second)
+	// time.Sleep(10 * time.Second)
 	switch r.Method {
 	case http.MethodGet:
 		if err := json.NewEncoder(w).Encode(products); err != nil {

@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 	"context-app/customers"
-	"context-app/index"
 	"context-app/products"
 	"fmt"
 	"log"
 	"time"
 
 	"net/http"
+
+	_ "net/http/pprof"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -41,7 +42,7 @@ func main() {
 	r.Use(LoggerMiddleware)
 	r.Use(TraceIdMiddleware)
 
-	r.HandleFunc("/", index.Handler)
+	// r.HandleFunc("/", index.Handler)
 	r.HandleFunc("/customers", customers.Handler)
 	r.HandleFunc("/products", products.GetAllHandler).Methods("GET")
 	r.HandleFunc("/products", products.AddProductHandler).Methods("POST")
