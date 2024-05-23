@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"time"
 )
@@ -100,9 +102,19 @@ func profileMiddleware(handler http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+func traceMiddleware(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		traceId := rand.Intn(10000)
+		traceCtx := context.WithValue(r.Context(), "trace-id", traceId)
+		reqClone := r.WithContext(traceCtx)
+		handler(w, reqClone)
+	}
+}
+
 func main() {
 	// server := &Server{}
 	server := NewServer()
+	server.useMiddleware(traceMiddleware)
 	server.useMiddleware(logMiddleware)
 	server.useMiddleware(profileMiddleware)
 	server.addRoute("/", IndexHandler)

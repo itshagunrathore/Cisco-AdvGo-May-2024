@@ -11,6 +11,13 @@ import (
 	"time"
 )
 
+type UUID struct {
+}
+
+func NewUUID() UUID {
+	return UUID{}
+}
+
 type Product struct {
 	Id       int     `json:"id"`
 	Name     string  `json:"name"`
@@ -104,6 +111,12 @@ func profileMiddleware(handler http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+func TraceMiddleware(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+	}
+}
+
 func main() {
 
 	server := &http.Server{
@@ -142,5 +155,4 @@ func main() {
 	log.Println("shutting down")
 	os.Exit(0)
 
-	fmt.Println("Server listening on 8080.....")
 }
