@@ -135,6 +135,7 @@ curl http://localhost:8080/products -X POST -H 'Content-Type:application/json' -
     - Bidirectional Streaming (stream of requests & stream of responses)
 - HTTP2
 - Uses Protocol Buffers for serializing payloads
+    - [Protocol Buffers Reference](https://protobuf.dev/)
     - Share the schema among the consumers and producers in advance
 - Multi-language supports
     - Go
