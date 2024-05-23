@@ -14,7 +14,15 @@ message AddResponse{
     int64 result=1;
 }
 
+// server streaming
+message PrimeRequest {
+    int64 start=1;
+    int64 end=2;
+}
 
+message PrimeResponse{
+    int64 primeNo=1;
+}
 
 // Service Contract
 service AppService {
@@ -23,4 +31,7 @@ service AppService {
 
     // Request & Response 
     rpc Add (AddRequest) returns (AddResponse);
+
+    // Server streaming
+    rpc GeneratePrimes (PrimeRequest) returns (stream PrimeResponse);
 }
