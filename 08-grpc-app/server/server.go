@@ -2,12 +2,16 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"grpc-app/proto"
+	"io"
 	"log"
 	"net"
 	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // Service Implementation
@@ -35,6 +39,7 @@ func (asi *AppServiceImpl) GeneratePrimes(req *proto.PrimeRequest, serverStream 
 	start := req.GetStart()
 	end := req.GetEnd()
 	log.Printf("[GeneratePrimes] Received req for generating primes from %d to %d\n", start, end)
+LOOP:
 	for no := start; no <= end; no++ {
 		if isPrime(no) {
 			res := &proto.PrimeResponse{
@@ -42,7 +47,11 @@ func (asi *AppServiceImpl) GeneratePrimes(req *proto.PrimeRequest, serverStream 
 			}
 			log.Printf("[GeneratePrimes] Sending prime no : %d\n", no)
 			if err := serverStream.Send(res); err != nil {
-				log.Fatalln(err)
+				// log.Fatalln(err)
+				if code := status.Code(err); code == codes.Unavailable {
+					fmt.Println("Transport closed")
+					break LOOP
+				}
 			}
 			time.Sleep(500 * time.Millisecond)
 		}
@@ -57,6 +66,64 @@ func isPrime(no int64) bool {
 		}
 	}
 	return true
+}
+
+func (as *AppServiceImpl) CalculateAverage(serverStream proto.AppService_CalculateAverageServer) error {
+	var total, count int64
+LOOP:
+	for {
+		req, err := serverStream.Recv()
+		if err == io.EOF {
+			avg := float32(total / count)
+			fmt.Println("sending response, avg :", avg)
+			res := &proto.AverageResponse{
+				Average: avg,
+			}
+			serverStream.SendAndClose(res)
+			break LOOP
+		}
+		if err != nil {
+			log.Fatalln(err)
+		}
+		no := req.GetNo()
+		fmt.Println("average req, no :", no)
+		total += no
+		count++
+	}
+	return nil
+}
+
+func (asi *AppServiceImpl) Greet(serverStream proto.AppService_GreetServer) error {
+	for {
+		greetReq, err := serverStream.Recv()
+		if code := status.Code(err); code == codes.Unavailable {
+			fmt.Println("Client connection closed")
+			break
+		}
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatalln(err)
+		}
+		person := greetReq.GetPerson()
+		firstName := person.GetFirstName()
+		lastName := person.GetLastName()
+		log.Printf("Received greet request for %q and %q\n", firstName, lastName)
+		message := fmt.Sprintf("Hi %s %s, Have a nice day!", firstName, lastName)
+		time.Sleep(2 * time.Second)
+		log.Printf("Sending response : %q\n", message)
+		greetResp := &proto.GreetResponse{
+			Message: message,
+		}
+		if err := serverStream.Send(greetResp); err != nil {
+			if code := status.Code(err); code == codes.Unavailable {
+				fmt.Println("Client connection closed")
+				break
+			}
+		}
+	}
+	return nil
 }
 
 func main() {
