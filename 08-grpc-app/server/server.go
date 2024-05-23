@@ -36,6 +36,11 @@ func (asi *AppServiceImpl) Add(ctx context.Context, req *proto.AddRequest) (*pro
 }
 
 func (asi *AppServiceImpl) GeneratePrimes(req *proto.PrimeRequest, serverStream proto.AppService_GeneratePrimesServer) error {
+
+	// trying get the data from the client sent through the context
+	val := serverStream.Context().Value("serviceName")
+	fmt.Printf("serviceName : %v\n", val)
+
 	start := req.GetStart()
 	end := req.GetEnd()
 	log.Printf("[GeneratePrimes] Received req for generating primes from %d to %d\n", start, end)

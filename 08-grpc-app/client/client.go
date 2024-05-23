@@ -147,8 +147,12 @@ func doServerStreamingWithCancellation(ctx context.Context, appServiceClient pro
 		End:   100,
 	}
 
+	// trying to send data through context (will fail)
+	// Cannot send data through context across the wire
+	valCtx := context.WithValue(ctx, "serviceName", "GRPC Service")
+
 	// creating context with cancellation
-	cancelCtx, cancel := context.WithCancel(ctx)
+	cancelCtx, cancel := context.WithCancel(valCtx)
 	defer cancel()
 
 	clientStream, err := appServiceClient.GeneratePrimes(cancelCtx, primeReq)
